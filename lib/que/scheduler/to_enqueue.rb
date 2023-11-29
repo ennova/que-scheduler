@@ -101,10 +101,14 @@ module Que
         # ActiveJob scheduled_at is returned as a float, where we want a Time for consistency
         scheduled_at =
           begin
-            scheduled_at_float = data[:scheduled_at]
+            scheduled_at = data[:scheduled_at]
+
             # rubocop:disable Style/EmptyElse
-            if scheduled_at_float
-              Que::Scheduler::TimeZone.time_zone.at(scheduled_at_float)
+            case scheduled_at
+            when Float
+              Que::Scheduler::TimeZone.time_zone.at(scheduled_at)
+            when String
+              Que::Scheduler::TimeZone.time_zone.parse(scheduled_at)
             else
               nil
             end
